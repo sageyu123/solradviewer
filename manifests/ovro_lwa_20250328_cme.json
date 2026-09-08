@@ -1,0 +1,43 @@
+{
+  "version": 2,
+  "event": {
+    "id": "2025-03-28-cme",
+    "label": "2025-03-28 CME",
+    "viewStart": "2025-03-28T16:00:32",
+    "viewEnd": "2025-03-28T16:02:08"
+  },
+  "defaults": {
+    "diffSeconds": 60
+  },
+  "sources": [
+    {
+      "id": "aia-131",
+      "role": "context",
+      "label": "AIA 131 Å",
+      "format": "aia-fits-sequence",
+      "paths": {
+        "directory": "/path/to/data/OVRO-LWA_20250328_CME/aiafiles/euv/JSOC_20260805_000411"
+      },
+      "pattern": "*.131.image.fits",
+      "hdu": 1,
+      "timeKey": "T_OBS"
+    },
+    {
+      "id": "eovsa",
+      "role": "radio",
+      "label": "EOVSA 1.10–1.73 GHz",
+      "format": "eovsa-fits-sequence",
+      "paths": {
+        "directory": "/path/to/data/OVRO-LWA_20250328_CME/EOVSA/qlookfits_spw0-1_perchan"
+      },
+      "pattern": "EOVSA.*.allbd.fits"
+    },
+    {
+      "id": "eovsa-spectrum",
+      "role": "spectrogram",
+      "label": "EOVSA Dynamic Spectrum",
+      "format": "fits",
+      "path": "/path/to/data/OVRO-LWA_20250328_CME/EOVSA/eovsa.spec_xp.flare_id_202503281507.fits"
+    }
+  ]
+}

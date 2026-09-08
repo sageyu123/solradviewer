@@ -1,0 +1,39 @@
+# Local environments, dependencies, and build products
+.venv
+.venv*/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.cache/
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+
+# Personal settings, credentials, and OS metadata
+.DS_Store
+.claude/
+.env
+.env.*
+!.env.example
+
+# Science data, generated analysis, and saved sessions stay local
+/data/
+/outputs/
+*.log
+*_session_*.json
+/manifests/local/
+/manifests/*.local.json
+*.fits
+*.fits.gz
+*.fts
+*.fit
+*.h5
+*.hdf5
+*.hdf
+*.pickle
+*.pkl
+*.npy
+*.npz

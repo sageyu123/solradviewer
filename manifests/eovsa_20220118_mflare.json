@@ -1,0 +1,41 @@
+{
+  "version": 2,
+  "event": {
+    "id": "2022-01-18-mflare",
+    "label": "2022-01-18 M-flare (sample)",
+    "viewStart": "2022-01-18T17:19:00",
+    "viewEnd": "2022-01-18T17:45:00"
+  },
+  "defaults": {
+    "diffSeconds": 24
+  },
+  "seeds": "/path/to/data/EOVSA_20220118_Mflare/AIA/SADs_pos_from_Xiaoyan/markpos.pickle",
+  "sources": [
+    {
+      "id": "aia-131",
+      "role": "context",
+      "label": "AIA 131 Å",
+      "format": "hdf",
+      "paths": {
+        "intensity": "/path/to/data/EOVSA_20220118_Mflare/AIA/mapseq_AIA/ssw_cutout/mapseq_20220118_1705-1805UT_131_bin1.h5",
+        "diff": "/path/to/data/EOVSA_20220118_Mflare/AIA/mapseq_AIA/ssw_cutout/mapseq_20220118_1705-1805UT_131_bin1_rratio.h5"
+      }
+    },
+    {
+      "id": "eovsa",
+      "role": "radio",
+      "label": "EOVSA",
+      "format": "eovsa-fits-sequence",
+      "paths": {
+        "directory": "/path/to/data/EOVSA_20220118_Mflare/EOVSA/qlookallbdfits_1s_1719-1745UT"
+      }
+    },
+    {
+      "id": "eovsa-spectrum",
+      "role": "spectrogram",
+      "label": "EOVSA Dynamic Spectrum",
+      "format": "fits",
+      "path": "/path/to/data/EOVSA_20220118_Mflare/EOVSA/eovsa.spec_xp.flare_id_202201181736.fits"
+    }
+  ]
+}
