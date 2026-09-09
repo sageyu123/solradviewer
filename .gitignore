@@ -37,3 +37,6 @@ build/
 *.pkl
 *.npy
 *.npz
+
+# Bundled frontend is generated for Python distributions
+/solradviewer/web/

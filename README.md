@@ -6,7 +6,7 @@ SolRadViewer is a local browser application for time-synchronized visualization 
 
 The current readers support AIA-style context images and EOVSA-format radio products. Other instruments need compatible data products or an additional reader; the broader application name does not imply universal FITS support.
 
-![SolRadViewer workspace showing a radio dynamic spectrum, slit time–distance map, and two context-image panels with radio contours](docs/images/solradviewer-workspace.png)
+![SolRadViewer workspace showing a radio dynamic spectrum, slit time–distance map, and two context-image panels with radio contours](https://raw.githubusercontent.com/sageyu123/solradviewer/main/docs/images/solradviewer-workspace.png)
 
 *Example workspace from the 2025-03-28 event: AIA 131 Å imagery, EOVSA radio contours and dynamic spectrum, and slit extraction. The supplied screenshot predates the SolRadViewer name. The observation files are not bundled.*
 
@@ -20,7 +20,20 @@ The current readers support AIA-style context images and EOVSA-format radio prod
 - Region selection, feature tracking, and radio peak/centroid extraction.
 - Saved JSON sessions and CSV analysis exports.
 
-## Install and launch
+## Install from PyPI
+
+Requires **Python 3.10–3.12**. The package includes the web interface, so running a release does not require Node.js, npm, or a Git checkout.
+
+```bash
+python -m pip install solradviewer
+solradviewer
+```
+
+Open **[http://127.0.0.1:8010](http://127.0.0.1:8010)**. The application and API share this local server. Press `Ctrl+C` to stop it. `python -m solradviewer` is equivalent, and `solradviewer --port 8020` selects another port.
+
+Use a virtual environment to keep the science dependencies separate from other Python projects. Bring your own observation files and load a manifest through the Data panel. Save an example manifest from the links below, or use the minimal JSON example in this README.
+
+## Run a source checkout
 
 Requires **Python 3.10–3.12**, **Node.js 22.12+** (or Node 20.19+), npm, and Git. The launch scripts use Bash, `curl`, and `lsof`; on Windows, use WSL. Science dependencies are installed by pip.
 
@@ -60,7 +73,7 @@ OVRO-LWA, LOFAR, VLA, Measurement Sets, CASA image directories, arbitrary FITS c
 
 ## Load your data
 
-1. Copy an example manifest to a private local file, for example:
+1. Save an example manifest from the links below to a private local JSON file. In a source checkout, you can copy one directly:
 
    ```bash
    cp manifests/ovro_lwa_20250328_cme.json manifests/my-event.local.json
@@ -127,9 +140,9 @@ Remove the spectrogram entry if no compatible spectrum is available. For HDF5 co
 }
 ```
 
-Example manifests are provided for the [2022-01-18 flare](manifests/eovsa_20220118_mflare.json) and [2025-03-28 event](manifests/ovro_lwa_20250328_cme.json). They are templates, not downloadable or bundled datasets. The optional `seeds` field in the older flare example references a legacy tracking pickle; omit it if unused and load only trusted pickle files.
+Example manifests are provided for the [2022-01-18 flare](https://github.com/sageyu123/solradviewer/blob/main/manifests/eovsa_20220118_mflare.json) and [2025-03-28 event](https://github.com/sageyu123/solradviewer/blob/main/manifests/ovro_lwa_20250328_cme.json). They are templates, not downloadable or bundled datasets. The optional `seeds` field in the older flare example references a legacy tracking pickle; omit it if unused and load only trusted pickle files.
 
-To automatically load a manifest at launch, pass a unique part of its filename:
+For a source checkout, automatically load a manifest at launch by passing a unique part of its filename:
 
 ```bash
 ./run_app.sh my-event
@@ -144,8 +157,8 @@ No personal disk mount is required. The application starts without observation f
 | Variable | Default / purpose |
 | --- | --- |
 | `PYTHON` | Optional interpreter override for the backend launcher; otherwise it uses `.venv/bin/python` when present, then Python on `PATH`. |
-| `SOLRADVIEWER_DATA_ROOT` | `data/EOVSA_20220118_Mflare` under the checkout. Root for the legacy sample only; it does not rewrite paths in manifests. |
-| `SOLRADVIEWER_OUTPUT_ROOT` | `outputs/` under the checkout. Session exports and analysis products. |
+| `SOLRADVIEWER_DATA_ROOT` | `data/EOVSA_20220118_Mflare` under the launch directory. Root for the legacy sample only; it does not rewrite paths in manifests. |
+| `SOLRADVIEWER_OUTPUT_ROOT` | `outputs/` under the launch directory. Session exports and analysis products. |
 | `SOLRADVIEWER_CACHE_DIR` | `~/.cache/solradviewer`. Render cache, with decoded image data in its `decoded-planes/` subdirectory. |
 | `SOLRADVIEWER_RENDER_CACHE_BYTES` | `2147483648` (2 GiB). Render-cache budget; use `0` to disable it. |
 | `SOLRADVIEWER_DECODED_STORE_GB` | `24` GiB. Decoded-image cache budget, allocated as data are read; use `0` to disable it. |
@@ -172,8 +185,20 @@ curl http://127.0.0.1:8010/api/health
 curl http://127.0.0.1:5174/api/health
 ```
 
-The backend uses FastAPI, NumPy/SciPy, Astropy, SunPy, and h5py; the frontend uses React, TypeScript, and Vite. Reader implementations live in [`solradviewer/backend/data.py`](solradviewer/backend/data.py), and API routes in [`solradviewer/backend/app.py`](solradviewer/backend/app.py).
+The backend uses FastAPI, NumPy/SciPy, Astropy, SunPy, and h5py; the frontend uses React, TypeScript, and Vite. Reader implementations live in [`solradviewer/backend/data.py`](https://github.com/sageyu123/solradviewer/blob/main/solradviewer/backend/data.py), and API routes in [`solradviewer/backend/app.py`](https://github.com/sageyu123/solradviewer/blob/main/solradviewer/backend/app.py).
 
 The application, Python package, and Python/npm distributions use **SolRadViewer** / `solradviewer`. The main analysis-session class is `SolRadSession`. API routes, data formats, and saved-session fields remain compatible.
 
-After updating an existing checkout, stop the backend, rerun `python -m pip install -e ".[test]"` in its environment, and restart with `./run_app.sh`. Custom Python scripts must use imports such as `from solradviewer.backend.data import SolRadSession`; the former Python namespace is no longer provided. See the [package migration notes](docs/design/solradviewer-rename.md).
+After updating an existing checkout, stop the backend, rerun `python -m pip install -e ".[test]"` in its environment, and restart with `./run_app.sh`. Custom Python scripts must use imports such as `from solradviewer.backend.data import SolRadSession`; the former Python namespace is no longer provided. See the [package migration notes](https://github.com/sageyu123/solradviewer/blob/main/docs/design/solradviewer-rename.md).
+
+## Build a release
+
+From a source checkout with Python and Node.js installed:
+
+```bash
+python -m pip install build twine
+./scripts/build-release.sh
+python -m twine check --strict dist/*
+```
+
+The build bundles the frontend into both the wheel and source distribution. Generated assets, local science data, sessions, and caches are not committed. See the [release guide](https://github.com/sageyu123/solradviewer/blob/main/docs/releasing.md) for publication steps.

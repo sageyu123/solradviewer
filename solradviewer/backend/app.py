@@ -11,6 +11,7 @@ import numpy as np
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, Response
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, model_validator
 
 from .data import (
@@ -367,6 +368,7 @@ SESSION_LOCK = Lock()
 FOREGROUND_LOCK = Lock()
 FOREGROUND_RENDERS = 0
 FRAME_CACHE_HEADERS = {"Cache-Control": "public, max-age=3600"}
+WEB_ROOT = Path(__file__).resolve().parents[1] / "web"
 
 app = FastAPI(title="SolRadViewer")
 app.add_middleware(
@@ -2430,6 +2432,26 @@ def export_file(session_id: str, name: str):
     return FileResponse(path, media_type=media_type, filename=path.name)
 
 
-@app.get("/")
-def index() -> dict[str, str]:
-    return {"app": "SolRadViewer", "frontend": "http://127.0.0.1:5174"}
+def configure_frontend(application: FastAPI, web_root: Path = WEB_ROOT) -> None:
+    """Serve the bundled frontend when a release includes built web assets.
+
+    A source checkout can run the backend before the frontend has been built;
+    in that case the historical JSON response at ``/`` remains available.
+    API routes are registered separately and are never handled by the
+    frontend's static fallback.
+    """
+    root = Path(web_root)
+    assets = root / "assets"
+    if assets.is_dir():
+        application.mount("/assets", StaticFiles(directory=assets), name="frontend-assets")
+
+    def index() -> FileResponse | dict[str, str]:
+        index_path = root / "index.html"
+        if index_path.is_file():
+            return FileResponse(index_path, media_type="text/html")
+        return {"app": "SolRadViewer", "frontend": "http://127.0.0.1:5174"}
+
+    application.add_api_route("/", index, include_in_schema=False, response_model=None)
+
+
+configure_frontend(app)

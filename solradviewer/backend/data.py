@@ -46,7 +46,7 @@ except Exception:  # pragma: no cover - display still works with standard maps.
     pass
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = Path.cwd()
 DEFAULT_DATA_ROOT = PROJECT_ROOT / "data" / "EOVSA_20220118_Mflare"
 DEFAULT_CACHE_ROOT = Path.home() / ".cache" / "solradviewer"
 

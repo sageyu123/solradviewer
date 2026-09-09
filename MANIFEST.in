@@ -1,0 +1,12 @@
+include README.md
+include scripts/build-release.sh
+include scripts/check-installed.py
+include frontend/index.html
+include frontend/package.json
+include frontend/package-lock.json
+include frontend/tsconfig.json
+include frontend/tsconfig.node.json
+include frontend/vite.config.ts
+recursive-include frontend/src *
+recursive-include frontend/scripts *.mjs
+recursive-include solradviewer/web *
