@@ -13,8 +13,8 @@ from astropy.io import fits
 from fastapi.testclient import TestClient
 from PIL import Image
 
-from sad_eovsa_tool.backend import app as api
-from sad_eovsa_tool.backend.data import (
+from solradviewer.backend import app as api
+from solradviewer.backend.data import (
     AiaFitsSequence,
     _temporal_frame_for_source,
     downsample_to_cap,

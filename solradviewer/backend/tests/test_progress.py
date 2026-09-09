@@ -13,8 +13,8 @@ from unittest.mock import patch
 import numpy as np
 from fastapi.testclient import TestClient
 
-from sad_eovsa_tool.backend import app as api, data
-from sad_eovsa_tool.backend.data import ProgressRegistry, SadEovsaSession
+from solradviewer.backend import app as api, data
+from solradviewer.backend.data import ProgressRegistry, SolRadSession
 
 
 class ProgressRegistryTest(unittest.TestCase):
@@ -25,7 +25,7 @@ class ProgressRegistryTest(unittest.TestCase):
                 patch.object(data, "AiaCube", return_value=SimpleNamespace()),
                 patch.object(data, "EovsaSequence", return_value=SimpleNamespace(nfreq=2)),
             ):
-                session = SadEovsaSession.create_from_manifest({})
+                session = SolRadSession.create_from_manifest({})
 
         operation = session.progress_registry.snapshot()[0]
         self.assertEqual(operation["label"], "Loading session")
@@ -104,12 +104,12 @@ class ProgressRegistryTest(unittest.TestCase):
         fake = SimpleNamespace(
             eovsa=_Radio(),
             progress_registry=registry,
-            radio_peak_cache_key=SadEovsaSession.radio_peak_cache_key,
+            radio_peak_cache_key=SolRadSession.radio_peak_cache_key,
             radio_peak_cache={},
             radio_peak_table_cache={},
             _overlay_cache={},
         )
-        key, peaks = SadEovsaSession.radio_global_peaks(fake, 61.0, "running", refresh=True)
+        key, peaks = SolRadSession.radio_global_peaks(fake, 61.0, "running", refresh=True)
 
         self.assertEqual(key, "running:dt=61.000")
         self.assertEqual(peaks, [3.0, 4.0])
@@ -150,18 +150,18 @@ class ProgressRegistryTest(unittest.TestCase):
         fake = SimpleNamespace(
             eovsa=radio,
             progress_registry=registry,
-            radio_peak_cache_key=SadEovsaSession.radio_peak_cache_key,
+            radio_peak_cache_key=SolRadSession.radio_peak_cache_key,
             radio_peak_cache={},
             radio_peak_table_cache={},
             _overlay_cache={},
             _radio_peak_build_lock=Lock(),
             _radio_peak_inflight={},
         )
-        with patch("sad_eovsa_tool.backend.data.Event", _TrackingEvent):
+        with patch("solradviewer.backend.data.Event", _TrackingEvent):
             with ThreadPoolExecutor(max_workers=2) as executor:
-                first = executor.submit(SadEovsaSession.radio_global_peaks, fake, 62.0, "running", True)
+                first = executor.submit(SolRadSession.radio_global_peaks, fake, 62.0, "running", True)
                 self.assertTrue(computation_started.wait(1.0))
-                second = executor.submit(SadEovsaSession.radio_global_peaks, fake, 62.0, "running", True)
+                second = executor.submit(SolRadSession.radio_global_peaks, fake, 62.0, "running", True)
                 self.assertTrue(waiter_started.wait(1.0))
                 release_computation.set()
                 self.assertEqual(first.result(timeout=1.0), second.result(timeout=1.0))

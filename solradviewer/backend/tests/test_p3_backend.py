@@ -10,8 +10,8 @@ import numpy as np
 from astropy.time import Time
 from fastapi.testclient import TestClient
 
-from sad_eovsa_tool.backend import app as api
-from sad_eovsa_tool.backend.data import SadEovsaSession
+from solradviewer.backend import app as api
+from solradviewer.backend.data import SolRadSession
 
 
 class _P3Session:
@@ -329,7 +329,7 @@ class P3BackendTest(unittest.TestCase):
     def test_mjd_extraction_bounds_resolve_on_dense_radio_axis(self) -> None:
         with TemporaryDirectory() as directory:
             session = _DenseExtractionSession(Path(directory))
-            rows = SadEovsaSession.extract_eovsa_sources(  # type: ignore[arg-type]
+            rows = SolRadSession.extract_eovsa_sources(  # type: ignore[arg-type]
                 session,
                 x_offset=0.0,
                 y_offset=0.0,
@@ -347,7 +347,7 @@ class P3BackendTest(unittest.TestCase):
     def test_radio_extraction_applies_source_channel_offsets(self) -> None:
         with TemporaryDirectory() as directory:
             session = _DenseExtractionSession(Path(directory))
-            rows = SadEovsaSession.extract_eovsa_sources(  # type: ignore[arg-type]
+            rows = SolRadSession.extract_eovsa_sources(  # type: ignore[arg-type]
                 session,
                 x_offset=0.0,
                 y_offset=0.0,
@@ -370,7 +370,7 @@ class P3BackendTest(unittest.TestCase):
         with TemporaryDirectory() as directory:
             session = _DenseExtractionSession(Path(directory))
             session.channel_mask = [True]
-            rows = SadEovsaSession.extract_eovsa_sources(  # type: ignore[arg-type]
+            rows = SolRadSession.extract_eovsa_sources(  # type: ignore[arg-type]
                 session,
                 x_offset=0.0,
                 y_offset=0.0,
@@ -402,7 +402,7 @@ class P3BackendTest(unittest.TestCase):
             }
         }
 
-        loaded = SadEovsaSession.api_loaded_state(session, state)  # type: ignore[arg-type]
+        loaded = SolRadSession.api_loaded_state(session, state)  # type: ignore[arg-type]
 
         self.assertEqual(loaded["ui"]["timeIndex"], 0)
         self.assertEqual(loaded["ui"]["startIndex"], 0)
@@ -411,13 +411,13 @@ class P3BackendTest(unittest.TestCase):
 
         session.projection_calls.clear()
         legacy_ui = {"timeIndex": 1, "startIndex": 0, "endIndex": 1, "freqIndex": 0}
-        legacy = SadEovsaSession.api_loaded_state(session, {"ui": legacy_ui})  # type: ignore[arg-type]
+        legacy = SolRadSession.api_loaded_state(session, {"ui": legacy_ui})  # type: ignore[arg-type]
         self.assertEqual(legacy["ui"], legacy_ui)
         self.assertEqual(session.projection_calls, [("aia", 1, None), ("eovsa", 1, None)])
 
     def test_loaded_state_sorts_clamps_and_rejects_nonfinite_timeline_values(self) -> None:
         session = _RestoreSession()
-        clamped = SadEovsaSession.api_loaded_state(  # type: ignore[arg-type]
+        clamped = SolRadSession.api_loaded_state(  # type: ignore[arg-type]
             session,
             {
                 "ui": {
@@ -444,7 +444,7 @@ class P3BackendTest(unittest.TestCase):
         self.assertEqual(session.projection_calls[-1], ("eovsa", 1, 5))
 
         session.projection_calls.clear()
-        invalid = SadEovsaSession.api_loaded_state(  # type: ignore[arg-type]
+        invalid = SolRadSession.api_loaded_state(  # type: ignore[arg-type]
             session,
             {
                 "ui": {

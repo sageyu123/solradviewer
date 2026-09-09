@@ -6,7 +6,7 @@ happen ahead of the cursor, at panel resolution, never on it.
 
 ## Part A — Backend audit + completion (do FIRST, report findings)
 
-Audit sad_eovsa_tool/backend/data.py + app.py for whether these exist; any
+Audit solradviewer/backend/data.py + app.py for whether these exist; any
 missing item gets implemented now:
 
 1. PNG encode speed: PIL save with compress_level=1 (or faster) in

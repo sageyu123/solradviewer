@@ -12,7 +12,7 @@ from unittest.mock import patch
 import numpy as np
 from astropy.io import fits
 
-from sad_eovsa_tool.backend.data import AiaFitsSequence, RenderDiskCache
+from solradviewer.backend.data import AiaFitsSequence, RenderDiskCache
 
 
 def _header() -> fits.Header:
@@ -77,7 +77,7 @@ class RenderDiskCacheTest(unittest.TestCase):
                 fits.ImageHDU(np.arange(4, dtype=np.float32).reshape(2, 2), header=_header()),
             ]).writeto(root / "frame.fits")
             cache = RenderDiskCache(root / "cache", max_bytes=1024 * 1024)
-            with patch("sad_eovsa_tool.backend.data.RENDER_DISK_CACHE", cache):
+            with patch("solradviewer.backend.data.RENDER_DISK_CACHE", cache):
                 first_source = AiaFitsSequence(root, pattern="frame.fits")
                 expected = first_source.texture(
                     0, 0.0, 3.0, "gray", "linear",
@@ -103,7 +103,7 @@ class RenderDiskCacheTest(unittest.TestCase):
                 fits.ImageHDU(np.ones((2, 2), dtype=np.float32), header=_header()),
             ]).writeto(frame_path)
             cache = RenderDiskCache(root / "cache", max_bytes=1024 * 1024)
-            with patch("sad_eovsa_tool.backend.data.RENDER_DISK_CACHE", cache):
+            with patch("solradviewer.backend.data.RENDER_DISK_CACHE", cache):
                 first_source = AiaFitsSequence(root, pattern="frame.fits")
                 first_source.texture(0, 0.0, 1.0, "gray", "linear", difference_mode="none")
                 stat = frame_path.stat()

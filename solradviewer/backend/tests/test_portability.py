@@ -10,7 +10,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from sad_eovsa_tool.backend import data
+from solradviewer.backend import data
 
 
 class PortabilityConfigurationTest(unittest.TestCase):
@@ -84,7 +84,7 @@ class PortabilityConfigurationTest(unittest.TestCase):
                 [
                     sys.executable,
                     "-c",
-                    "from sad_eovsa_tool.backend import data; "
+                    "from solradviewer.backend import data; "
                     "print(data.DATA_ROOT); "
                     "print(data.DEFAULT_OUTPUT_ROOT); "
                     "print(data.RENDER_DISK_CACHE.directory)",

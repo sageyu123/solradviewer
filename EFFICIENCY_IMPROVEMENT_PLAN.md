@@ -77,16 +77,16 @@ open; confirm stale requests show as cancelled, the settled frame renders in
 ### Phase 2 — Single-band radio reads (backend)
 
 `EovsaSequence` reads and diffs the entire `(52, 256, 256)` cube to display
-one band ([data.py:908](sad_eovsa_tool/backend/data.py:908),
-[data.py:941](sad_eovsa_tool/backend/data.py:941)); measured 190 ms vs 10 ms
+one band ([data.py:908](solradviewer/backend/data.py:908),
+[data.py:941](solradviewer/backend/data.py:941)); measured 190 ms vs 10 ms
 for an astropy section read of one band.
 
 - For the single-band texture path (`texture_for_aia_time`,
-  [data.py:1003](sad_eovsa_tool/backend/data.py:1003)), read only `[fidx]` via
+  [data.py:1003](solradviewer/backend/data.py:1003)), read only `[fidx]` via
   the compressed-HDU section API and compute the difference for that band
   only.
 - Keep full-cube reads for the all-band contour path
-  ([data.py:1803](sad_eovsa_tool/backend/data.py:1803)) and for
+  ([data.py:1803](solradviewer/backend/data.py:1803)) and for
   peak-cache/extraction scans.
 - Cache key: extend `_data_cache` to key on `(idx, band)` for section reads,
   or keep a separate per-band cache, so single-band and full-cube entries
@@ -99,7 +99,7 @@ extraction table before/after).
 ### Phase 3 — Faster PNG settings (backend)
 
 One-line-scale change in `_render_png`
-([data.py:328](sad_eovsa_tool/backend/data.py:328)); PNG encode is ~62% of
+([data.py:328](solradviewer/backend/data.py:328)); PNG encode is ~62% of
 AIA frame cost.
 
 - Set PIL `compress_level=1`: measured ~102→~30-36 ms, output ~5–70% larger
@@ -126,7 +126,7 @@ decompress the same file twice.
   `Future`/`threading.Event` under a lock): first caller reads, concurrent
   callers wait on the same result.
 - Apply the same pattern to `AiaFitsSequence._read_file`
-  ([data.py:630](sad_eovsa_tool/backend/data.py:630)).
+  ([data.py:630](solradviewer/backend/data.py:630)).
 
 Verification: log or counter on actual `fits.open` calls; slider tick with
 contours on triggers one read per file, not two.
@@ -157,9 +157,9 @@ zoom in — after settle, displayed resolution matches full-res crop.
 Lower urgency; matters for long back-and-forth scrubbing sessions.
 
 - **FIFO → LRU** for `AiaFitsSequence._data_cache`
-  ([data.py:640](sad_eovsa_tool/backend/data.py:640)) and
+  ([data.py:640](solradviewer/backend/data.py:640)) and
   `EovsaSequence._data_cache`
-  ([data.py:841](sad_eovsa_tool/backend/data.py:841)): 32-entry FIFO evicts
+  ([data.py:841](solradviewer/backend/data.py:841)): 32-entry FIFO evicts
   frames still in active use when scrubbing spans >32 timesteps; reuse the
   `OrderedDict`/`move_to_end` pattern already used by `_texture_cache`.
 - **Decouple frame data from render params.** Texture cache keys include
@@ -167,18 +167,18 @@ Lower urgency; matters for long back-and-forth scrubbing sessions.
   Add a frame-level cache keyed on data params only; `_render_png` re-runs on
   display changes (~14 ms + encode).
 - **Cache the EOVSA→AIA affine** (`_eovsa_to_aia_affine`,
-  [data.py:1785](sad_eovsa_tool/backend/data.py:1785)) keyed on
+  [data.py:1785](solradviewer/backend/data.py:1785)) keyed on
   `(time_index, x_offset, y_offset)` — currently rebuilds two sunpy Maps +
   WCS transforms per contour request.
 - **Add a cache for `AiaCube._mean_reference`**
-  ([data.py:433](sad_eovsa_tool/backend/data.py:433)) mirroring the
+  ([data.py:433](solradviewer/backend/data.py:433)) mirroring the
   `AiaFitsSequence` 8-slot version (HDF5 backend + mean mode only).
 - **Byte-budgeted caches**: the rendered-texture cache (384 entries) and
   browser image cache (96 entries) should be bounded by bytes rather than
   entry count before anyone shrinks them blindly — too-small caches make
   backward sliding slower.
 - Remove or wire in the dead `EovsaSequence.data_cube()` fast path
-  ([data.py:855](sad_eovsa_tool/backend/data.py:855)) — never called;
+  ([data.py:855](solradviewer/backend/data.py:855)) — never called;
   Phase 2's section reads largely supersede it, so removal is the likely
   outcome.
 
@@ -211,7 +211,7 @@ Lower urgency; matters for long back-and-forth scrubbing sessions.
 ## 4. Known issue to track separately (correctness, not speed)
 
 "Global" contour level references use opportunistically accumulated peaks
-([data.py:1114](sad_eovsa_tool/backend/data.py:1114)): levels can shift as
+([data.py:1114](solradviewer/backend/data.py:1114)): levels can shift as
 more frames get visited in a session unless a full peak-cache refresh has
 run. Worth fixing or documenting alongside Phase 6, but it is not a
 performance item.

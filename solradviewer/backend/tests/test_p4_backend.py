@@ -9,7 +9,7 @@ from astropy.time import Time
 from fastapi.testclient import TestClient
 from PIL import Image
 
-from sad_eovsa_tool.backend import app as api
+from solradviewer.backend import app as api
 
 
 class _P4Axis:

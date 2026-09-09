@@ -9,9 +9,9 @@ import numpy as np
 from astropy.time import Time
 from fastapi.testclient import TestClient
 
-from sad_eovsa_tool.backend import app as api
-from sad_eovsa_tool.backend.data import (
-    SadEovsaSession,
+from solradviewer.backend import app as api
+from solradviewer.backend.data import (
+    SolRadSession,
     patch_mean,
     series_stats,
     stride_indices,
@@ -48,10 +48,10 @@ class _ProbeRadio:
         return self.values[int(index)]
 
 
-def _probe_session() -> SadEovsaSession:
+def _probe_session() -> SolRadSession:
     times = Time([60000.0 + value / 86400.0 for value in (0.0, 1.0, 2.0)], format="mjd")
     values = np.arange(27, dtype=np.float32).reshape(3, 3, 3)
-    session = object.__new__(SadEovsaSession)
+    session = object.__new__(SolRadSession)
     session.session_id = "probe-test"
     session.context_source_id = "context"
     session.radio_source_id = "radio"

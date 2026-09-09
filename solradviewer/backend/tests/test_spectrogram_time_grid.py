@@ -12,7 +12,7 @@ from astropy.io import fits
 from astropy.time import Time
 from PIL import Image
 
-from sad_eovsa_tool.backend.data import EovsaSpectrogram, _regularize_spectrogram_time_axis
+from solradviewer.backend.data import EovsaSpectrogram, _regularize_spectrogram_time_axis
 
 
 class SpectrogramTimeGridTest(unittest.TestCase):

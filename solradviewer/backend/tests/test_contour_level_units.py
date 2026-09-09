@@ -10,7 +10,7 @@ import numpy as np
 from PIL import Image
 from astropy.io import fits
 
-from sad_eovsa_tool.backend.data import SadEovsaSession, _sfu_to_tb_thresholds
+from solradviewer.backend.data import SolRadSession, _sfu_to_tb_thresholds
 
 
 class ContourLevelUnitsTest(unittest.TestCase):
@@ -24,8 +24,8 @@ class ContourLevelUnitsTest(unittest.TestCase):
         return header
 
     @staticmethod
-    def _session() -> SadEovsaSession:
-        session = SadEovsaSession.__new__(SadEovsaSession)
+    def _session() -> SolRadSession:
+        session = SolRadSession.__new__(SolRadSession)
         session.aia = SimpleNamespace(nt=1, times=[SimpleNamespace(mjd=0.0)], shape=(10, 10))
         session.eovsa = Mock()
         session.eovsa.nearest_time_index.return_value = 0
@@ -91,7 +91,7 @@ class ContourLevelUnitsTest(unittest.TestCase):
             return []
 
         with unittest.mock.patch(
-            "sad_eovsa_tool.backend.data.measure.find_contours",
+            "solradviewer.backend.data.measure.find_contours",
             side_effect=record_threshold,
         ):
             session.eovsa_all_band_contours_on_aia(
@@ -167,7 +167,7 @@ class ContourLevelUnitsTest(unittest.TestCase):
             return []
 
         with unittest.mock.patch(
-            "sad_eovsa_tool.backend.data.measure.find_contours",
+            "solradviewer.backend.data.measure.find_contours",
             side_effect=record_band,
         ):
             session.eovsa_all_band_contours_on_aia(

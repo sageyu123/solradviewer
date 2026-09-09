@@ -6,7 +6,7 @@ import unittest
 
 import numpy as np
 
-from sad_eovsa_tool.backend.data import _resample_frequency_axis
+from solradviewer.backend.data import _resample_frequency_axis
 
 
 class SpectrogramFrequencyScaleTest(unittest.TestCase):

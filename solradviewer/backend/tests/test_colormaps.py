@@ -9,7 +9,7 @@ from unittest.mock import patch
 import numpy as np
 from PIL import Image
 
-from sad_eovsa_tool.backend.data import CMAP_ALIASES, _render_png, _resolve_colormap
+from solradviewer.backend.data import CMAP_ALIASES, _render_png, _resolve_colormap
 
 
 def _endpoint_rgb(cmap: str) -> tuple[tuple[int, int, int], tuple[int, int, int]]:

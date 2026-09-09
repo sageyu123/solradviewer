@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
-from sad_eovsa_tool.backend import app as api
+from solradviewer.backend import app as api
 
 
 class FilesystemBrowserTest(unittest.TestCase):

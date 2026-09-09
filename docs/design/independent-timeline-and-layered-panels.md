@@ -25,7 +25,7 @@ The same source can therefore appear more than once with different operations or
 
 `frontend/src/App.tsx:783-829` stores one `timeIndex` and derives `currentMjd` from `meta.aia.timeMjd`. `eovsaTimeIndex` is then the nearest radio sample (`:823-827`). Frame URLs for both images and the contour overlay are generated from that AIA index (`:843-899`). The slider and playback also operate on AIA indices (`:1721-1741`, with a 180 ms playback interval at `:1207-1213`). A radio-only step cannot currently visit every native radio time.
 
-The backend metadata already exposes native source axes: AIA, EOVSA and spectrogram `timeMjd`/timestamps, plus EOVSA `freqGhz` (`sad_eovsa_tool/backend/data.py:1526-1584`). The route implementation still presents a context-oriented `timeIndex`; source-specific nearest-time resolution should be made explicit rather than inferred from the AIA index.
+The backend metadata already exposes native source axes: AIA, EOVSA and spectrogram `timeMjd`/timestamps, plus EOVSA `freqGhz` (`solradviewer/backend/data.py:1526-1584`). The route implementation still presents a context-oriented `timeIndex`; source-specific nearest-time resolution should be made explicit rather than inferred from the AIA index.
 
 ### Source roles are global, not panel composition
 
@@ -33,7 +33,7 @@ The frontend keeps one selected source and role overrides (`sourceRoles`, `selec
 
 ### Colormap gaps and frequency convention
 
-Generic intensity controls currently offer Gray, Gray R, Viridis, Turbo, Magma and Coolwarm (`App.tsx:2386-2407`). Contour controls expose a smaller set (`App.tsx:256-268`). The backend already aliases `rdylbu` to Matplotlib `RdYlBu` (`sad_eovsa_tool/backend/data.py:70-82`), but Parula and Inferno are not exposed consistently in the frontend. These are scalar-display palettes, not automatically frequency-aware palettes.
+Generic intensity controls currently offer Gray, Gray R, Viridis, Turbo, Magma and Coolwarm (`App.tsx:2386-2407`). Contour controls expose a smaller set (`App.tsx:256-268`). The backend already aliases `rdylbu` to Matplotlib `RdYlBu` (`solradviewer/backend/data.py:70-82`), but Parula and Inferno are not exposed consistently in the frontend. These are scalar-display palettes, not automatically frequency-aware palettes.
 
 The reference app establishes the required frequency convention in `ovrolwa-rfr-corr-app/frontend/src/radioColormaps.ts:9-14`: low frequency is warm and high frequency is cool. Its palette tests pin the endpoints for Parula, Viridis and RdYlBu (`radioColormaps.test.ts:4-35`). The proposal adopts that direction for frequency-coded radio contours and their colorbar, while preserving ordinary low-value-to-high-value semantics for scalar intensity images.
 

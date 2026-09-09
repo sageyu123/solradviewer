@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import unittest
 
-from sad_eovsa_tool.backend.data import DEFAULT_AIA_DIFF, DEFAULT_EOVSA_DIR, DEFAULT_SEEDS, SadEovsaSession
+from solradviewer.backend.data import DEFAULT_AIA_DIFF, DEFAULT_EOVSA_DIR, DEFAULT_SEEDS, SolRadSession
 
 
 DATA_AVAILABLE = DEFAULT_AIA_DIFF.exists() and DEFAULT_EOVSA_DIR.exists() and DEFAULT_SEEDS.exists()
@@ -14,7 +14,7 @@ DATA_AVAILABLE = DEFAULT_AIA_DIFF.exists() and DEFAULT_EOVSA_DIR.exists() and DE
 class WorkflowSmokeTest(unittest.TestCase):
     @unittest.skipUnless(DATA_AVAILABLE, "Default 2022-01-18 data products are not available on this machine.")
     def test_default_session_renders_and_extracts_short_window(self) -> None:
-        session = SadEovsaSession.create_default()
+        session = SolRadSession.create_default()
         meta = session.api_meta()
         self.assertIn("sources", meta)
         self.assertEqual([source["role"] for source in meta["sources"][:3]], ["context", "radio", "spectrogram"])

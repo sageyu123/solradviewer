@@ -29,5 +29,5 @@ test = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["sad_eovsa_tool*"]
-exclude = ["sad_eovsa_tool.backend.tests*"]
+include = ["solradviewer*"]
+exclude = ["solradviewer.backend.tests*"]

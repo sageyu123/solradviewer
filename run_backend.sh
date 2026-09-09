@@ -19,4 +19,4 @@ if [[ -z "$PYTHON" ]]; then
   exit 1
 fi
 
-exec "$PYTHON" -m uvicorn sad_eovsa_tool.backend.app:app --reload --reload-dir sad_eovsa_tool --host 127.0.0.1 --port 8010 --timeout-graceful-shutdown 3
+exec "$PYTHON" -m uvicorn solradviewer.backend.app:app --reload --reload-dir solradviewer --host 127.0.0.1 --port 8010 --timeout-graceful-shutdown 3

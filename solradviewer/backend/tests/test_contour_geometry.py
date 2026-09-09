@@ -15,8 +15,8 @@ from fastapi.testclient import TestClient
 import numpy as np
 from skimage import measure
 
-from sad_eovsa_tool.backend import app as api
-from sad_eovsa_tool.backend.data import RenderDiskCache, SadEovsaSession, _sfu_to_tb_thresholds
+from solradviewer.backend import app as api
+from solradviewer.backend.data import RenderDiskCache, SolRadSession, _sfu_to_tb_thresholds
 
 
 def _header() -> fits.Header:
@@ -28,8 +28,8 @@ def _header() -> fits.Header:
     return header
 
 
-def _session(bands: np.ndarray) -> SadEovsaSession:
-    session = SadEovsaSession.__new__(SadEovsaSession)
+def _session(bands: np.ndarray) -> SolRadSession:
+    session = SolRadSession.__new__(SolRadSession)
     session.aia = SimpleNamespace(
         nt=1,
         times=Time([60000.0], format="mjd"),
@@ -71,7 +71,7 @@ class ContourGeometryTest(unittest.TestCase):
         expected_xy = np.column_stack([expected[:, 1] + 2.0, expected[:, 0] + 3.0])
 
         with TemporaryDirectory() as temporary, patch(
-            "sad_eovsa_tool.backend.data.RENDER_DISK_CACHE",
+            "solradviewer.backend.data.RENDER_DISK_CACHE",
             RenderDiskCache(Path(temporary)),
         ):
             payload = session.eovsa_contour_geometry(
@@ -90,7 +90,7 @@ class ContourGeometryTest(unittest.TestCase):
         session.channel_mask = [False, True]
 
         with TemporaryDirectory() as temporary, patch(
-            "sad_eovsa_tool.backend.data.RENDER_DISK_CACHE",
+            "solradviewer.backend.data.RENDER_DISK_CACHE",
             RenderDiskCache(Path(temporary)),
         ):
             payload = session.eovsa_contour_geometry(
@@ -105,7 +105,7 @@ class ContourGeometryTest(unittest.TestCase):
         session = _session(data)
 
         with TemporaryDirectory() as temporary, patch(
-            "sad_eovsa_tool.backend.data.RENDER_DISK_CACHE",
+            "solradviewer.backend.data.RENDER_DISK_CACHE",
             RenderDiskCache(Path(temporary)),
         ) as cache:
             expected = session.eovsa_contour_geometry(
@@ -113,7 +113,7 @@ class ContourGeometryTest(unittest.TestCase):
             )
             session._contour_geometry_cache.clear()
             with patch(
-                "sad_eovsa_tool.backend.data.measure.find_contours",
+                "solradviewer.backend.data.measure.find_contours",
                 side_effect=AssertionError("geometry disk cache miss"),
             ):
                 actual = session.eovsa_contour_geometry(
@@ -148,10 +148,10 @@ class ContourGeometryTest(unittest.TestCase):
                     return []
 
                 with TemporaryDirectory() as temporary, patch(
-                    "sad_eovsa_tool.backend.data.RENDER_DISK_CACHE",
+                    "solradviewer.backend.data.RENDER_DISK_CACHE",
                     RenderDiskCache(Path(temporary)),
                 ), patch(
-                    "sad_eovsa_tool.backend.data.measure.find_contours", side_effect=trace
+                    "solradviewer.backend.data.measure.find_contours", side_effect=trace
                 ):
                     session.eovsa_contour_geometry(
                         0,

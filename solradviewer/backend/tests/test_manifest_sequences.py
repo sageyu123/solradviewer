@@ -12,7 +12,7 @@ import time
 import numpy as np
 from astropy.io import fits
 
-from sad_eovsa_tool.backend.data import (
+from solradviewer.backend.data import (
     AiaFitsSequence,
     DATA_CACHE_LIMIT,
     EOVSA_DATA_CACHE_LIMIT,
@@ -42,7 +42,7 @@ class ManifestSequenceTest(unittest.TestCase):
     def setUp(self) -> None:
         self.decoded_temporary = TemporaryDirectory()
         self.decoded_patch = patch(
-            "sad_eovsa_tool.backend.data.DECODED_PLANE_STORE",
+            "solradviewer.backend.data.DECODED_PLANE_STORE",
             DecodedPlaneStore(Path(self.decoded_temporary.name), max_bytes=64 * 1024**2),
         )
         self.decoded_patch.start()
@@ -110,7 +110,7 @@ class ManifestSequenceTest(unittest.TestCase):
                 time.sleep(0.02)
                 return original_open(*args, **kwargs)
 
-            with patch("sad_eovsa_tool.backend.data.fits.open", side_effect=tracked_open):
+            with patch("solradviewer.backend.data.fits.open", side_effect=tracked_open):
                 with ThreadPoolExecutor(max_workers=4) as executor:
                     results = list(executor.map(lambda _index: sequence._read_file(0), range(4)))
 
@@ -215,7 +215,7 @@ class ManifestSequenceTest(unittest.TestCase):
             sequence._texture_cache.clear()
             sequence._band_cache.clear()
             sequence._data_cache.clear()
-            with patch("sad_eovsa_tool.backend.data.fits.open", wraps=fits.open) as open_mock:
+            with patch("solradviewer.backend.data.fits.open", wraps=fits.open) as open_mock:
                 sequence.texture_for_aia_time(mjd, 1, 60.0, -1.0, 3.0, "gray", "linear", difference_mode="none", full_cube=True)
                 sequence.mode_data(1, 60.0, "none")
             self.assertEqual(open_mock.call_count, 0)
@@ -242,7 +242,7 @@ class ManifestSequenceTest(unittest.TestCase):
                 time.sleep(0.02)
                 return original_open(*args, **kwargs)
 
-            with patch("sad_eovsa_tool.backend.data.fits.open", side_effect=tracked_open):
+            with patch("solradviewer.backend.data.fits.open", side_effect=tracked_open):
                 with ThreadPoolExecutor(max_workers=4) as executor:
                     results = list(executor.map(lambda _index: sequence._read_file(0), range(4)))
 

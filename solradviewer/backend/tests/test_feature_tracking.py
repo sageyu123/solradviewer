@@ -7,8 +7,8 @@ from pathlib import Path
 import numpy as np
 from astropy.time import Time
 
-from sad_eovsa_tool.backend.data import (
-    SadEovsaSession,
+from solradviewer.backend.data import (
+    SolRadSession,
     constrained_ncc_segment,
     track_ncc_pass,
     tracking_csv_rows,
@@ -168,7 +168,7 @@ def test_session_tracks_context_and_radio_sources_independently(tmp_path: Path) 
     radio_frames, radio_centers = _moving_blob_sequence(count=12, velocity=(0.45, 0.2))
     aia_times = Time(60000.0 + np.arange(len(aia_frames)) * 12.0 / 86400.0, format="mjd")
     radio_times = Time(60000.0 + np.arange(len(radio_frames)) * 4.0 / 86400.0, format="mjd")
-    session = SadEovsaSession(
+    session = SolRadSession(
         session_id="mixed-source-test",
         aia=_SyntheticContextSequence(aia_frames, aia_times),  # type: ignore[arg-type]
         eovsa=_SyntheticRadioSequence(radio_frames, radio_times),  # type: ignore[arg-type]

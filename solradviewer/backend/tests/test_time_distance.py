@@ -11,11 +11,11 @@ import numpy as np
 from astropy.time import Time
 from fastapi.testclient import TestClient
 
-from sad_eovsa_tool.backend import app as api
-from sad_eovsa_tool.backend import data
-from sad_eovsa_tool.backend.data import (
+from solradviewer.backend import app as api
+from solradviewer.backend import data
+from solradviewer.backend.data import (
     RenderDiskCache,
-    SadEovsaSession,
+    SolRadSession,
     extract_time_distance_map,
     fan_family_curves,
 )
@@ -66,10 +66,10 @@ class _SyntheticRadioSequence:
         return np.asarray(points, dtype=float)
 
 
-def _session(frames: np.ndarray, output_dir: Path) -> SadEovsaSession:
+def _session(frames: np.ndarray, output_dir: Path) -> SolRadSession:
     context = _SyntheticSequence(frames)
     radio = SimpleNamespace(nfreq=0, times=Time([], format="mjd"), shape=(1, 1))
-    return SadEovsaSession(
+    return SolRadSession(
         session_id="slit-synthetic",
         aia=context,  # type: ignore[arg-type]
         eovsa=radio,  # type: ignore[arg-type]
@@ -213,7 +213,7 @@ def test_radio_multichannel_slit_cache_keys_and_npz_layout(tmp_path: Path) -> No
     ])
     context = _SyntheticSequence(frames[:, 0])
     radio = _SyntheticRadioSequence(frames)
-    session = SadEovsaSession(
+    session = SolRadSession(
         session_id="slit-radio-multi",
         aia=context,  # type: ignore[arg-type]
         eovsa=radio,  # type: ignore[arg-type]
@@ -264,7 +264,7 @@ def test_radio_slit_channel_offset_shifts_profile_and_cache_revision(tmp_path: P
     frames = np.stack([feature[None, :, :] + time for time in range(4)])
     context = _SyntheticSequence(frames[:, 0])
     radio = _SyntheticRadioSequence(frames)
-    session = SadEovsaSession(
+    session = SolRadSession(
         session_id="slit-radio-offset",
         aia=context,  # type: ignore[arg-type]
         eovsa=radio,  # type: ignore[arg-type]
@@ -404,7 +404,7 @@ def test_slit_batch_endpoint_matches_sequential_singles_radio(tmp_path: Path) ->
     ])
     context = _SyntheticSequence(frames[:, 0])
     radio = _SyntheticRadioSequence(frames)
-    session = SadEovsaSession(
+    session = SolRadSession(
         session_id="slit-batch-radio",
         aia=context,  # type: ignore[arg-type]
         eovsa=radio,  # type: ignore[arg-type]

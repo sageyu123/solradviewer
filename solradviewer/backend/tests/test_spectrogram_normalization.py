@@ -11,8 +11,8 @@ import numpy as np
 from astropy.io import fits
 from fastapi.testclient import TestClient
 
-from sad_eovsa_tool.backend import app as api
-from sad_eovsa_tool.backend.data import (
+from solradviewer.backend import app as api
+from solradviewer.backend.data import (
     EovsaSpectrogram,
     RenderDiskCache,
     _normalize_spectrogram_rows,
@@ -77,7 +77,7 @@ class SpectrogramNormalizationTest(unittest.TestCase):
             source = EovsaSpectrogram(root / "spectrogram.fits")
             medians = source._row_medians
             cache = RenderDiskCache(root / "cache", max_bytes=1024 * 1024)
-            with patch("sad_eovsa_tool.backend.data.RENDER_DISK_CACHE", cache):
+            with patch("solradviewer.backend.data.RENDER_DISK_CACHE", cache):
                 source.texture(normalization="none")
                 source.texture(normalization="divide")
                 source.texture(normalization="subtract")
@@ -111,7 +111,7 @@ class SpectrogramNormalizationTest(unittest.TestCase):
             api.SESSIONS["spectrogram-legacy-test"] = session  # type: ignore[assignment]
             cache = RenderDiskCache(root / "cache", max_bytes=1024 * 1024)
             try:
-                with patch("sad_eovsa_tool.backend.data.RENDER_DISK_CACHE", cache):
+                with patch("solradviewer.backend.data.RENDER_DISK_CACHE", cache):
                     legacy = TestClient(api.app).get(
                         "/api/sessions/spectrogram-legacy-test/sources/spectrogram/spectrogram.png"
                     )

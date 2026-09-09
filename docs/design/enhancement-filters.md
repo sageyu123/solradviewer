@@ -150,7 +150,7 @@ mode bandpass:  F_i = lowpass(sigma_short)_i - lowpass(sigma_long)_i
 
 Implementation order: backend params + filters → frontend layer
 schema/URL/inspector controls → saved-state round-trip. All existing DoD
-conventions apply: `npm run build` and `pytest sad_eovsa_tool/backend/tests/`
+conventions apply: `npm run build` and `pytest solradviewer/backend/tests/`
 pass; new backend tests: radial factor map (on-disk untouched, cap
 respected, gamma=0 identity) and temporal filter (constant series is a
 fixed point; single-spike suppression ratio matches the analytic Gaussian

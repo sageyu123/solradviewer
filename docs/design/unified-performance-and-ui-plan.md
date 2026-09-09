@@ -30,7 +30,7 @@ land first because they are independent of any UI decision.
   phase names. Keep all existing `timeIndex`-based routes working unchanged
   until §4 explicitly aliases them. Match existing code style; backend
   docstrings follow the existing Sphinx style.
-- **Verify with.** Backend tests: `pytest sad_eovsa_tool/backend/tests/` (all
+- **Verify with.** Backend tests: `pytest solradviewer/backend/tests/` (all
   must pass; add tests named in each phase's DoD). Manual/perf checks: run
   `./run_app.sh 20250328` (requires `/path/to/data` mounted) and use
   the curl timing pattern
@@ -132,7 +132,7 @@ Carried over from the efficiency plan; unchanged in content, restated as one
 phase because none of them depend on the UI decisions:
 
 1. **Faster PNG encode** — `compress_level=1` in `_render_png`
-   ([data.py:328](../../sad_eovsa_tool/backend/data.py)): ~109 → ~30 ms.
+   ([data.py:328](../../solradviewer/backend/data.py)): ~109 → ~30 ms.
    Optional: grayscale-mode (`L`) PNGs for `cmap=gray`; JPEG only if lossless
    is waived.
 2. **Single-band radio section reads** — read only `[freqIndex]` for the
@@ -152,7 +152,7 @@ phase because none of them depend on the UI decisions:
   radio frame ≤ 25 ms; contour overlay not regressed.
 - Item 3 verified by a counter/log on `fits.open` calls: a slider tick with
   contours enabled opens each radio FITS file at most once.
-- Existing tests in `sad_eovsa_tool/backend/tests/` all pass. New tests:
+- Existing tests in `solradviewer/backend/tests/` all pass. New tests:
   single-band section read returns arrays identical to slicing the full-cube
   read (`np.array_equal`) for a few `(timeIndex, freqIndex)` pairs and for
   each difference operation; LRU eviction keeps the most-recently-used entry

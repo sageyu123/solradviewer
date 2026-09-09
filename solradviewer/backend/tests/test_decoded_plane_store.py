@@ -13,7 +13,7 @@ from unittest.mock import patch
 import numpy as np
 from astropy.io import fits
 
-from sad_eovsa_tool.backend.data import AiaFitsSequence, DecodedPlaneStore, EovsaSequence
+from solradviewer.backend.data import AiaFitsSequence, DecodedPlaneStore, EovsaSequence
 
 
 def _solar_header(timestamp: str) -> fits.Header:
@@ -113,12 +113,12 @@ class DecodedPlaneStoreTest(unittest.TestCase):
                 fits.ImageHDU(aia_values, header=_solar_header("2025-03-28T00:00:00")),
             ]).writeto(root / "aia_00.fits")
 
-            with patch("sad_eovsa_tool.backend.data.DECODED_PLANE_STORE", store):
+            with patch("solradviewer.backend.data.DECODED_PLANE_STORE", store):
                 radio_first = EovsaSequence(root, pattern="radio_*.fits")._read_file(0)
                 aia_first = AiaFitsSequence(root, pattern="aia_*.fits")._read_file(0)
                 radio_restarted = EovsaSequence(root, pattern="radio_*.fits")
                 aia_restarted = AiaFitsSequence(root, pattern="aia_*.fits")
-                with patch("sad_eovsa_tool.backend.data.fits.open", side_effect=AssertionError("decoded-store miss")):
+                with patch("solradviewer.backend.data.fits.open", side_effect=AssertionError("decoded-store miss")):
                     radio_second = radio_restarted._read_file(0)
                     aia_second = aia_restarted._read_file(0)
 

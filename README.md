@@ -161,7 +161,7 @@ Exports include `feature_tracks.csv` and `radio_sources.csv` under `outputs/<ses
 ## Development and checks
 
 ```bash
-python -m unittest discover -s sad_eovsa_tool/backend/tests
+python -m unittest discover -s solradviewer/backend/tests
 npm run build --prefix frontend
 ```
 
@@ -172,6 +172,8 @@ curl http://127.0.0.1:8010/api/health
 curl http://127.0.0.1:5174/api/health
 ```
 
-The backend uses FastAPI, NumPy/SciPy, Astropy, SunPy, and h5py; the frontend uses React, TypeScript, and Vite. Reader implementations live in [`sad_eovsa_tool/backend/data.py`](sad_eovsa_tool/backend/data.py), and API routes in [`sad_eovsa_tool/backend/app.py`](sad_eovsa_tool/backend/app.py).
+The backend uses FastAPI, NumPy/SciPy, Astropy, SunPy, and h5py; the frontend uses React, TypeScript, and Vite. Reader implementations live in [`solradviewer/backend/data.py`](solradviewer/backend/data.py), and API routes in [`solradviewer/backend/app.py`](solradviewer/backend/app.py).
 
-The Python import namespace `sad_eovsa_tool`, existing API routes, and saved-session fields remain unchanged so existing workflows continue to work. The application and Python/npm distribution names are now **SolRadViewer** / `solradviewer`. Historical design notes under `docs/design/` describe earlier proposals and may differ from current behavior.
+The application, Python package, and Python/npm distributions use **SolRadViewer** / `solradviewer`. The main analysis-session class is `SolRadSession`. API routes, data formats, and saved-session fields remain compatible.
+
+After updating an existing checkout, stop the backend, rerun `python -m pip install -e ".[test]"` in its environment, and restart with `./run_app.sh`. Custom Python scripts must use imports such as `from solradviewer.backend.data import SolRadSession`; the former Python namespace is no longer provided. See the [package migration notes](docs/design/solradviewer-rename.md).

@@ -23,7 +23,7 @@ from .data import (
     OverlayUnavailableError,
     ProgressRegistry,
     RENDER_DISK_CACHE,
-    SadEovsaSession,
+    SolRadSession,
     SlitExtractionCancelled,
     data_stats_headers,
     resolve_time_index,
@@ -301,7 +301,7 @@ class SlitBatchExtractRequest(BaseModel):
     The client groups every visible slit by (sourceId, serialized
     layerParams) before issuing one request per group (see extractAllSlits
     in App.tsx) so the frame-outer batch pass in
-    :meth:`SadEovsaSession.extract_slit_batch` can read each native source
+    :meth:`SolRadSession.extract_slit_batch` can read each native source
     frame once and sample every slit's (and, for radio, every channel's)
     curve from it.
     """
@@ -362,7 +362,7 @@ class ChannelOffsetsRequest(BaseModel):
         return self
 
 
-SESSIONS: dict[str, SadEovsaSession] = {}
+SESSIONS: dict[str, SolRadSession] = {}
 SESSION_LOCK = Lock()
 FOREGROUND_LOCK = Lock()
 FOREGROUND_RENDERS = 0
@@ -410,7 +410,7 @@ def _foreground_active() -> bool:
         return FOREGROUND_RENDERS > 0
 
 
-def _register_session(session: SadEovsaSession, prewarm: bool = False) -> None:
+def _register_session(session: SolRadSession, prewarm: bool = False) -> None:
     with SESSION_LOCK:
         previous = SESSIONS.get(session.session_id)
         SESSIONS[session.session_id] = session
@@ -454,7 +454,7 @@ def _frame_stats(source: object, method_name: str, *args: object, **kwargs: obje
 
 
 def _resolve_request(
-    session: SadEovsaSession,
+    session: SolRadSession,
     source_id: str,
     time_index: int | None,
     sample_mjd: float | None,
@@ -515,7 +515,7 @@ def _resolve_request(
 
 
 def _resolve_panel_time(
-    session: SadEovsaSession,
+    session: SolRadSession,
     panel: str,
     time_index: int | None,
     sample_mjd: float | None,
@@ -539,7 +539,7 @@ def _resolve_panel_time(
     return None if aia is None else (aia[0], index, resolved_mjd, offset_seconds)
 
 
-def _session(session_id: str) -> SadEovsaSession:
+def _session(session_id: str) -> SolRadSession:
     session = SESSIONS.get(session_id)
     if session is None:
         raise HTTPException(status_code=404, detail=f"Session not found: {session_id}")
@@ -555,7 +555,7 @@ def _progress_registry(session: object) -> ProgressRegistry:
     return registry
 
 
-def _panel_for_source(session: SadEovsaSession, panel: str, source_id: str | None) -> str:
+def _panel_for_source(session: SolRadSession, panel: str, source_id: str | None) -> str:
     if source_id in {session.radio_source_id, "radio", "eovsa"}:
         return "eovsa"
     if source_id in {session.context_source_id, "context", "aia"}:
@@ -571,7 +571,7 @@ def _native_cadence_seconds(times: object) -> float | None:
     return None if not deltas else float(sorted(deltas)[len(deltas) // 2] * 86400.0)
 
 
-def _validate_source_id(session: SadEovsaSession, source_id: str | None) -> None:
+def _validate_source_id(session: SolRadSession, source_id: str | None) -> None:
     """Reject an explicit unknown source instead of falling back to panel."""
     if source_id is None:
         return
@@ -726,7 +726,7 @@ def cache_stats() -> dict[str, int]:
 @app.post("/api/sessions/default")
 def create_default_session() -> dict[str, object]:
     try:
-        session = SadEovsaSession.create_default()
+        session = SolRadSession.create_default()
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Could not load default event: {exc}") from exc
     _register_session(session)
@@ -736,7 +736,7 @@ def create_default_session() -> dict[str, object]:
 @app.post("/api/sessions/sample")
 def create_sample_session() -> dict[str, object]:
     try:
-        session = SadEovsaSession.create_sample()
+        session = SolRadSession.create_sample()
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Could not load sample data: {exc}") from exc
     _register_session(session)
@@ -745,9 +745,9 @@ def create_sample_session() -> dict[str, object]:
 
 @app.post("/api/sessions/load-manifest")
 def load_manifest_session(manifest: dict[str, object]) -> dict[str, object]:
-    session: SadEovsaSession | None = None
+    session: SolRadSession | None = None
     try:
-        session = SadEovsaSession.create_from_manifest(manifest)
+        session = SolRadSession.create_from_manifest(manifest)
         loaded_state = session.api_loaded_state(manifest)
         session.update_load_progress(5)
         _register_session(session, prewarm=True)
@@ -763,9 +763,9 @@ def load_manifest_session(manifest: dict[str, object]) -> dict[str, object]:
 
 @app.post("/api/sessions/load-json")
 def load_json_session(state: dict[str, object]) -> dict[str, object]:
-    session: SadEovsaSession | None = None
+    session: SolRadSession | None = None
     try:
-        session = SadEovsaSession.create_from_state(state)
+        session = SolRadSession.create_from_state(state)
         loaded_state = session.api_loaded_state(state)
         session.update_load_progress(5)
         _register_session(session, prewarm=True)
@@ -2100,12 +2100,12 @@ def _slit_map_payload(
 
     Shared by the single-slit and batch slit extraction endpoints so the
     contour-threshold and NaN-safe stat logic (see
-    :meth:`SadEovsaSession.radio_contour_threshold`) has one definition.
+    :meth:`SolRadSession.radio_contour_threshold`) has one definition.
 
     :param session: Owning session, used for the radio contour threshold.
     :type session: object
-    :param result: One extracted map record (from :meth:`SadEovsaSession.extract_slit`
-        or :meth:`SadEovsaSession.extract_radio_slit_channels`/``extract_slit_batch``).
+    :param result: One extracted map record (from :meth:`SolRadSession.extract_slit`
+        or :meth:`SolRadSession.extract_radio_slit_channels`/``extract_slit_batch``).
     :type result: dict[str, object]
     :param cache_hit: Whether this map came from the disk cache.
     :type cache_hit: bool
@@ -2286,7 +2286,7 @@ def extract_slit_batch(session_id: str, request: SlitBatchExtractRequest) -> dic
     Companion to ``/slits/extract`` for the "All slits" extraction mode: the
     client groups every visible slit by (sourceId, serialized layerParams)
     and issues one request per group, each of which reads every native
-    source frame exactly once (see :meth:`SadEovsaSession.extract_slit_batch`)
+    source frame exactly once (see :meth:`SolRadSession.extract_slit_batch`)
     instead of once per slit.
 
     :param session_id: In-memory session identifier.

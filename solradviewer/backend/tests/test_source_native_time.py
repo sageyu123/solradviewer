@@ -9,8 +9,8 @@ from astropy.time import Time
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
-from sad_eovsa_tool.backend import app as api
-from sad_eovsa_tool.backend.data import resolve_time_index
+from solradviewer.backend import app as api
+from solradviewer.backend.data import resolve_time_index
 
 
 class _FakeAia:

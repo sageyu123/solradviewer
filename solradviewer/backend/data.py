@@ -1146,7 +1146,7 @@ def _radio_layer_is_identity(layer: dict[str, object]) -> bool:
     """Return whether a tracked radio layer resolves to a raw decoded plane.
 
     Mirrors the default-resolution in
-    :meth:`SadEovsaSession.processed_tracking_frame` and the
+    :meth:`SolRadSession.processed_tracking_frame` and the
     operation/temporal/radial-gamma normalization in
     :meth:`EovsaSequence.frame_for_aia_time` so that callers can bypass the
     full processing pipeline exactly when it would have been a no-op,
@@ -4423,7 +4423,7 @@ class PlaceholderSpectrogram:
 
 
 @dataclass
-class SadEovsaSession:
+class SolRadSession:
     """One in-memory app session."""
 
     session_id: str
@@ -4681,7 +4681,7 @@ class SadEovsaSession:
         return self.channel_offsets_payload()
 
     @classmethod
-    def create_default(cls) -> "SadEovsaSession":
+    def create_default(cls) -> "SolRadSession":
         session_id = uuid.uuid4().hex
         output_dir = DEFAULT_OUTPUT_ROOT / session_id
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -4697,7 +4697,7 @@ class SadEovsaSession:
         return session
 
     @classmethod
-    def create_sample(cls) -> "SadEovsaSession":
+    def create_sample(cls) -> "SolRadSession":
         return cls.create_default()
 
     @staticmethod
@@ -4761,7 +4761,7 @@ class SadEovsaSession:
         }
 
     @classmethod
-    def create_from_manifest(cls, manifest: dict[str, object]) -> "SadEovsaSession":
+    def create_from_manifest(cls, manifest: dict[str, object]) -> "SolRadSession":
         progress_registry = ProgressRegistry()
         load_progress_id = progress_registry.start("Loading session", total=5)
         context = cls._manifest_source(manifest, "context")
@@ -4866,7 +4866,7 @@ class SadEovsaSession:
         return session
 
     @classmethod
-    def create_from_state(cls, state: dict[str, object]) -> "SadEovsaSession":
+    def create_from_state(cls, state: dict[str, object]) -> "SolRadSession":
         if isinstance(state.get("sources"), list):
             session = cls.create_from_manifest(state)
             persisted_offsets = state.get("channelOffsets")
