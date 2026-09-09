@@ -13,7 +13,8 @@ dependencies = [
   "fastapi>=0.115,<1",
   "h5py>=3.10,<4",
   "matplotlib>=3.8,<4",
-  "numpy>=1.26,<3",
+  # Astropy 6 uses np.in1d, which NumPy 2.4 removed.
+  "numpy>=1.26,<2.4",
   "pandas>=2.0,<3",
   "pillow>=10,<12",
   "pydantic>=2,<3",
