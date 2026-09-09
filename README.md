@@ -1,204 +1,67 @@
 # SolRadViewer
 
-**Explore solar radio images, dynamic spectra, and context imagery together.**
+SolRadViewer brings solar radio images, context images, and dynamic spectra into one workspace. It runs locally in your browser, with a shared clock for comparing observations in space and time.
 
-SolRadViewer is a local browser application for time-synchronized visualization and analysis of radio and context-image sequences. Compare image layers, overlay radio contours, follow evolving features, and extract time–distance maps and source measurements. Its workflow uses `context`, `radio`, and optional `spectrogram` roles rather than being restricted to supra-arcade downflows (SADs) or a single event.
+I built it to study the spatial and temporal relationship between supra-arcade downflows and radio sources observed by EOVSA. That work involved comparing faint moving structures in EUV images with radio emission at different frequencies. The app brings those comparisons together: you can follow an event, adjust the image processing, and measure motion along a slit without switching between separate plots.
 
-The current readers support AIA-style context images and EOVSA-format radio products. Other instruments need compatible data products or an additional reader; the broader application name does not imply universal FITS support.
+![SolRadViewer workspace with a dynamic spectrum, time–distance map, and layered image panels](https://raw.githubusercontent.com/sageyu123/solradviewer/main/docs/images/solradviewer-workspace.png)
 
-![SolRadViewer workspace showing a radio dynamic spectrum, slit time–distance map, and two context-image panels with radio contours](https://raw.githubusercontent.com/sageyu123/solradviewer/main/docs/images/solradviewer-workspace.png)
-
-*Example workspace from the 2025-03-28 event: AIA 131 Å imagery, EOVSA radio contours and dynamic spectrum, and slit extraction. The supplied screenshot predates the SolRadViewer name. The observation files are not bundled.*
+*AIA 131 Å images and EOVSA observations of the 2025-03-28 event. The curved slit connects the image measurements to the time–distance map above.*
 
 ## Features
 
-- Two image panels with configurable image layers and radio contour overlays.
-- Synchronized playback across sources with different cadences, a frequency selector, and an interactive dynamic spectrum.
-- Original images, subtraction, and ratios using previous frames, a base frame, or a mean image; display scaling, colormaps, and enhancement filters.
-- Radio alignment offsets, per-channel adjustments and masks, and contour levels relative to frame or global peaks.
-- Straight or curved slits and fan families for time–distance analysis, plus pixel light curves.
-- Region selection, feature tracking, and radio peak/centroid extraction.
-- Saved JSON sessions and CSV analysis exports.
+### Images as layers
 
-## Install from PyPI
+Two image panels let you compare different views of the same event. Each panel holds image and contour layers with their own display settings. Reorder layers, toggle their visibility, or copy a layer to the other panel. Use sliders to adjust layer opacity and intensity limits as you inspect the images. Overlay radio contours on a context image, adjust the contour levels, and compare radio frequencies. Alignment controls shift the radio overlay when the observations need a positional correction.
 
-Requires **Python 3.10–3.12**. The package includes the web interface, so running a release does not require Node.js, npm, or a Git checkout.
+### A shared timeline and dynamic spectrum
+
+The dynamic spectrum shows radio intensity across time and frequency. Click or drag across it to select a time, scrub with the time slider, step through frames, or play the sequence. Time indicators connect the spectrum and image views; image timestamps and time offsets show which observations are being compared when the source cadences differ. Frequency controls select the radio channels to inspect.
+
+### Image processing
+
+Switch between intensity, difference, and ratio images. Use a previous frame, a fixed base frame, or a mean image as the reference to bring out changes over time. Each image layer has its own colormap, display range, and linear, logarithmic, square-root, or asinh stretch. A radial filter enhances coronal structure, and temporal low-pass or band-pass filters are available for difference and ratio images. Keep the original image in the other panel to see what the processing changes.
+
+### Time–distance maps
+
+Draw a straight or curved slit on an image and extract intensity along it through time. Adjust the slit width and smoothing, or draw a fan of slits to compare nearby paths. The resulting maps share the event timeline and can be exported as PNG images or NPZ arrays. Bind slits to different layers to compare motion in context images with radio emission, and adjust time shifts when inspecting their relationship.
+
+You can also inspect pixel light curves, select regions for feature tracking, and extract radio peak and centroid positions. Save the workspace as a JSON session to return to the same setup, or export measurements as CSV files.
+
+## Install and run
+
+Requires Python 3.10–3.12. Install from [PyPI](https://pypi.org/project/solradviewer/) in a virtual environment:
 
 ```bash
+python -m venv .venv
+source .venv/bin/activate
 python -m pip install solradviewer
 solradviewer
 ```
 
-Open **[http://127.0.0.1:8010](http://127.0.0.1:8010)**. The application and API share this local server. Press `Ctrl+C` to stop it. `python -m solradviewer` is equivalent, and `solradviewer --port 8020` selects another port.
+On Windows, activate the environment with `.venv\Scripts\activate` instead.
 
-Use a virtual environment to keep the science dependencies separate from other Python projects. Bring your own observation files and load a manifest through the Data panel. Save an example manifest from the links below, or use the minimal JSON example in this README.
+Open [http://127.0.0.1:8010](http://127.0.0.1:8010). The package includes the browser interface; no separate frontend installation is needed. Press `Ctrl+C` in the terminal to stop the server. To choose another port, run `solradviewer --port 8020`.
 
-## Run a source checkout
+## Load observations
 
-Requires **Python 3.10–3.12**, **Node.js 22.12+** (or Node 20.19+), npm, and Git. The launch scripts use Bash, `curl`, and `lsof`; on Windows, use WSL. Science dependencies are installed by pip.
+Start with an example manifest for the [2022-01-18 flare](https://github.com/sageyu123/solradviewer/blob/main/manifests/eovsa_20220118_mflare.json) or the [2025-03-28 event](https://github.com/sageyu123/solradviewer/blob/main/manifests/ovro_lwa_20250328_cme.json). A manifest is a JSON file that lists the data sources and their locations on your computer. Replace the example paths with your own, then choose **Load Manifest / JSON** in the Data panel or drag the file into the workspace. Saved sessions load the same way.
 
-```bash
-git clone https://github.com/sageyu123/solradviewer.git
-cd solradviewer
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e ".[test]"
-npm install --prefix frontend
-./run_app.sh
-```
+The Data panel includes a local file browser. Its **Add Source Path** action currently registers a placeholder; use a manifest to load the supported image sequences. Observation files stay on the machine running the app. The example manifests reference data you supply; the observations are not included in the package.
 
-Open **[http://127.0.0.1:5174](http://127.0.0.1:5174)**. The backend listens on port **8010**. Press `Ctrl+C` in the launch terminal to stop both services.
+### Supported data
 
-To use an existing Python environment, activate it and skip virtual-environment creation. You can also select an interpreter explicitly:
-
-```bash
-PYTHON=/path/to/python ./run_app.sh
-```
-
-For a checkout on a cloud-synced drive, keeping the Python environment outside that drive can improve startup speed. Individual launchers `./run_backend.sh` and `./run_frontend.sh` are available for debugging. The combined launcher stops existing listeners on ports 8010 and 5174 before starting; choose those ports only for this app.
-
-## Currently supported data
-
-| Role / data | Manifest format | Required layout |
-| --- | --- | --- |
-| Context: AIA FITS image sequence | `aia-fits-sequence` | A directory of 2-D FITS images with solar WCS and observation timestamps. Configurable filename `pattern`, `hdu` (default 1), and `timeKey` (default `T_OBS`; date-header fallbacks are supported). |
-| Context: AIA-style HDF5 map sequence | `hdf` | `map_sequence/map_<index>/data` datasets, each with a JSON `meta` attribute containing map metadata and an observation time. Supply `paths.intensity` and `paths.diff`; generic HDF5 arrays are not sufficient. |
-| Radio: EOVSA all-band FITS sequence | `eovsa-fits-sequence` (examples also use `fits`) | A directory with one FITS file per time. HDU 1 contains a `(frequency, y, x)` image cube, solar WCS, and an observation time. HDU 2 contains `cfreqs` and `cdelts` in Hz. Set a filename `pattern` for your event. |
-| Spectrogram: EOVSA dynamic spectrum | `fits` | Primary-HDU array shaped `(frequency, time)`, HDU 1 table column `FGHZ` in GHz, and HDU 2 table column `TIME` in Julian days. Optional for a session. |
-| Session / dataset description | JSON | A manifest with source roles and local file paths, or a saved app session. JSON references science files; it does not contain them. |
-
-A working analysis session currently requires both a supported context source and a supported radio source. The role-based UI does not yet provide arbitrary context-only, radio-only, or multi-instrument loaders. Unknown extra-source formats may appear as placeholders rather than usable image layers.
-
-OVRO-LWA, LOFAR, VLA, Measurement Sets, CASA image directories, arbitrary FITS cubes, generic NPZ arrays, and ordinary PNG/JPEG context images do **not** have dedicated readers in this version. The example filename `ovro_lwa_20250328_cme.json` names the research event; its actual sources are AIA and EOVSA.
-
-## Load your data
-
-1. Save an example manifest from the links below to a private local JSON file. In a source checkout, you can copy one directly:
-
-   ```bash
-   cp manifests/ovro_lwa_20250328_cme.json manifests/my-event.local.json
-   ```
-
-2. Replace every `/path/to/data/...` placeholder with a real path on the machine running the backend. Adjust patterns, labels, and event times.
-3. Start the app and choose **Load Manifest / JSON**, or drag the JSON file into the Data panel.
-4. Select image layers, set the time range, and inspect the radio frequencies and overlays. Draw a slit to extract a time–distance map, or select a region for tracking and source extraction.
-5. Save a session to retain the setup, or export the analysis products.
-
-The browser sends file paths to the local backend; it does not upload the science files. Use absolute paths for portable, unambiguous manifests. Relative paths resolve from the backend's working directory (the repository root when launched with the scripts), **not** from the JSON file's location. Shell variables inside JSON strings are not expanded.
-
-A minimal FITS-sequence example:
-
-```json
-{
-  "version": 2,
-  "event": {
-    "id": "my-event",
-    "label": "My solar event"
-  },
-  "sources": [
-    {
-      "id": "context",
-      "role": "context",
-      "label": "AIA 131 Å",
-      "format": "aia-fits-sequence",
-      "paths": { "directory": "/path/to/data/aia" },
-      "pattern": "*.fits",
-      "hdu": 1,
-      "timeKey": "T_OBS"
-    },
-    {
-      "id": "radio",
-      "role": "radio",
-      "label": "Radio images",
-      "format": "eovsa-fits-sequence",
-      "paths": { "directory": "/path/to/data/radio" },
-      "pattern": "*.allbd.fits"
-    },
-    {
-      "id": "spectrum",
-      "role": "spectrogram",
-      "label": "Dynamic spectrum",
-      "format": "fits",
-      "path": "/path/to/data/spectrum.fits"
-    }
-  ]
-}
-```
-
-Remove the spectrogram entry if no compatible spectrum is available. For HDF5 context data, replace the context entry with:
-
-```json
-{
-  "id": "context",
-  "role": "context",
-  "label": "Context images",
-  "format": "hdf",
-  "paths": {
-    "intensity": "/path/to/data/intensity.h5",
-    "diff": "/path/to/data/running-ratio.h5"
-  }
-}
-```
-
-Example manifests are provided for the [2022-01-18 flare](https://github.com/sageyu123/solradviewer/blob/main/manifests/eovsa_20220118_mflare.json) and [2025-03-28 event](https://github.com/sageyu123/solradviewer/blob/main/manifests/ovro_lwa_20250328_cme.json). They are templates, not downloadable or bundled datasets. The optional `seeds` field in the older flare example references a legacy tracking pickle; omit it if unused and load only trusted pickle files.
-
-For a source checkout, automatically load a manifest at launch by passing a unique part of its filename:
-
-```bash
-./run_app.sh my-event
-```
-
-This searches `manifests/*.json`; unknown or ambiguous keys are rejected. Files in the ignored `manifests/local/` folder can be loaded through the UI.
-
-## Local data and configuration
-
-No personal disk mount is required. The application starts without observation files; loading a session requires your data. Set environment variables **before** starting the backend. They are not read automatically from a `.env` file.
-
-| Variable | Default / purpose |
+| Data | Supported input |
 | --- | --- |
-| `PYTHON` | Optional interpreter override for the backend launcher; otherwise it uses `.venv/bin/python` when present, then Python on `PATH`. |
-| `SOLRADVIEWER_DATA_ROOT` | `data/EOVSA_20220118_Mflare` under the launch directory. Root for the legacy sample only; it does not rewrite paths in manifests. |
-| `SOLRADVIEWER_OUTPUT_ROOT` | `outputs/` under the launch directory. Session exports and analysis products. |
-| `SOLRADVIEWER_CACHE_DIR` | `~/.cache/solradviewer`. Render cache, with decoded image data in its `decoded-planes/` subdirectory. |
-| `SOLRADVIEWER_RENDER_CACHE_BYTES` | `2147483648` (2 GiB). Render-cache budget; use `0` to disable it. |
-| `SOLRADVIEWER_DECODED_STORE_GB` | `24` GiB. Decoded-image cache budget, allocated as data are read; use `0` to disable it. |
+| Context image sequences | AIA-style 2-D FITS images with solar coordinates and observation times, or HDF5 map sequences with per-image metadata |
+| Radio image sequences | EOVSA all-band FITS files containing a frequency cube and channel metadata for each time |
+| Dynamic spectra | EOVSA FITS spectra with frequency and time tables |
+| Dataset descriptions and saved workspaces | JSON manifests and sessions |
 
-Existing `SAD_EOVSA_RENDER_CACHE_DIR`, `SAD_EOVSA_RENDER_CACHE_BYTES`, and `SAD_EOVSA_DECODED_STORE_GB` settings remain accepted. Byte-based `SOLRADVIEWER_DECODED_CACHE_BYTES` / `SAD_EOVSA_DECODED_CACHE_BYTES` are fallback settings when no valid GiB budget is provided.
+A session currently needs both a context image sequence and a radio image sequence; the dynamic spectrum is optional. FITS support depends on the layouts above. Direct Helioviewer downloads and JPEG 2000 (JP2/JP2K) loading are not implemented in this release.
 
-The legacy sample action expects the 2022-01-18 files under the configured sample-data root, using the relative layout shown in its example manifest. Normal manifest loading uses the paths you provide directly.
+See the [data guide](https://github.com/sageyu123/solradviewer/blob/main/docs/data-and-configuration.md) for the required FITS and HDF5 layouts, a complete manifest example, and data/cache settings.
 
-Science data, `outputs/`, logs, local environments, `manifests/local/`, `manifests/*.local.json`, and exported `*_session_*.json` files are ignored by Git. Keep your private manifests in those locations. Saved sessions contain local paths; review them before sharing.
+## Development
 
-Exports include `feature_tracks.csv` and `radio_sources.csv` under `outputs/<session-id>/`. Legacy `sad_tracks.csv` and `eovsa_sources.csv` aliases remain for compatibility.
-
-## Development and checks
-
-```bash
-python -m unittest discover -s solradviewer/backend/tests
-npm run build --prefix frontend
-```
-
-Most backend checks create small synthetic data files. The original observational workflow tests skip when the optional sample dataset is unavailable. With the app running, check both services:
-
-```bash
-curl http://127.0.0.1:8010/api/health
-curl http://127.0.0.1:5174/api/health
-```
-
-The backend uses FastAPI, NumPy/SciPy, Astropy, SunPy, and h5py; the frontend uses React, TypeScript, and Vite. Reader implementations live in [`solradviewer/backend/data.py`](https://github.com/sageyu123/solradviewer/blob/main/solradviewer/backend/data.py), and API routes in [`solradviewer/backend/app.py`](https://github.com/sageyu123/solradviewer/blob/main/solradviewer/backend/app.py).
-
-The application, Python package, and Python/npm distributions use **SolRadViewer** / `solradviewer`. The main analysis-session class is `SolRadSession`. API routes, data formats, and saved-session fields remain compatible.
-
-After updating an existing checkout, stop the backend, rerun `python -m pip install -e ".[test]"` in its environment, and restart with `./run_app.sh`. Custom Python scripts must use imports such as `from solradviewer.backend.data import SolRadSession`; the former Python namespace is no longer provided. See the [package migration notes](https://github.com/sageyu123/solradviewer/blob/main/docs/design/solradviewer-rename.md).
-
-## Build a release
-
-From a source checkout with Python and Node.js installed:
-
-```bash
-python -m pip install build twine
-./scripts/build-release.sh
-python -m twine check --strict dist/*
-```
-
-The build bundles the frontend into both the wheel and source distribution. Generated assets, local science data, sessions, and caches are not committed. See the [release guide](https://github.com/sageyu123/solradviewer/blob/main/docs/releasing.md) for publication steps.
+For an editable installation, frontend setup, and tests, see the [development guide](https://github.com/sageyu123/solradviewer/blob/main/docs/development.md). The backend is Python/FastAPI and the interface is React/TypeScript. Packaging and publishing are covered in the [release guide](https://github.com/sageyu123/solradviewer/blob/main/docs/releasing.md).
